@@ -45,7 +45,7 @@ class Process:
     async def listen(self, reader, writer):
         print("listen")
         request = None
-        while request != 'quit':
+        while request != 'quit' or request != '':
             request = (await reader.read(255)).decode('utf8')
             print("request! = ", request)
             self.queue.append(request)
@@ -74,8 +74,23 @@ class Process:
             print("this is the main loop where queue = ", self.queue)
             time.sleep(self.instruction_time)
 
-        # TODO: read 1 message
-        # TODO: roll dice to maybe send a message
+            # read a message
+            if (len(self.queue) > 0):
+                msg = self.queue.pop()
+                print("Reading message: ", msg)
+            else:
+                #roll dice to maybe send a message
+                dice_roll = random.randint(1, 10)
+                if dice_roll == 1:
+                    asyncio.run(self.send_message_to_a())
+                elif dice_roll == 2:
+                    asyncio.run(self.send_message_to_b())
+                elif dice_roll == 3:
+                    asyncio.run(self.send_message_to_a())
+                    asyncio.run(self.send_message_to_b())
+                else:
+                    print("no action to take!")
+                
 
     def main(self):
         print("main function")
