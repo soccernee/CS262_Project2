@@ -70,8 +70,8 @@ class Process:
     def main_loop(self):
         print("main_loop!")
         while True:
-            print("this is the main loop where queue = ", self.queue)
             time.sleep(self.instruction_time)
+            print("this is the main loop where queue = ", self.queue)
 
             # read a message
             if (len(self.queue) > 0):
@@ -90,6 +90,7 @@ class Process:
                 else:
                     print("no action to take!")
                 
+            
 
     def main(self):
         print("main function")
