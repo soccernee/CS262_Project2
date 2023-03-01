@@ -8,10 +8,11 @@ class Machine_2(Process):
         self.port_a = config.PROCESS_1_PORT
         self.port_b = config.PROCESS_3_PORT
 
-        super().__init__(config.PROCESS_2)
+        super().__init__(config.PROCESS_2, self.my_port)
 
     def send_initial_broadcast(self):
         # TODO: send broadcast to connect with machine 1
+        print("Sending initial broadcast from: ", self.my_port)
         pass
 
 machine_2 = Machine_2()
