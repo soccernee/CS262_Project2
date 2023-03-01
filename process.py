@@ -8,10 +8,10 @@ class Process:
     def __init__(self):
         random.seed()
 
+        # initialize some variables
         self.a_writer = None
         self.b_writer = None
         self.queue = []
-
         self.host = config.SERVER_HOST
 
         # determine instruction cycles per second
@@ -43,15 +43,14 @@ class Process:
         await self.b_writer.drain()
 
     async def listen(self, reader, writer):
-        print("listen")
         request = None
         while request != 'quit' or request != '':
             request = (await reader.read(255)).decode('utf8')
-            print("request! = ", request)
+            # add incoming message to our queue
             self.queue.append(request)
 
     async def run_server(self):
-        print("run_server on port: ", self.my_port)
+        print("server listening on port: ", self.my_port)
         server = await asyncio.start_server(self.listen, 'localhost', self.my_port)
         async with server:
             await server.serve_forever()
