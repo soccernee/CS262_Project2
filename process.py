@@ -71,15 +71,16 @@ class Process:
         print("main_loop!")
         while True:
             time.sleep(self.instruction_time)
-            print("this is the main loop where queue = ", self.queue)
+            print("This is the main loop where queue = ", self.queue)
 
-            # read a message
             if (len(self.queue) > 0):
+                # read a message
                 msg = self.queue.pop()
                 print("Reading message: ", msg)
             else:
                 #roll dice to maybe send a message
                 dice_roll = random.randint(1, 10)
+
                 if dice_roll == 1:
                     asyncio.run(self.send_message_to_a())
                 elif dice_roll == 2:
