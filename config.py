@@ -2,8 +2,3 @@ SERVER_HOST = 'localhost'
 PROCESS_1_PORT = 6125
 PROCESS_2_PORT = 6135
 PROCESS_3_PORT = 6145
-
-# config per process
-PROCESS_1 = 1
-PROCESS_2 = 2
-PROCESS_3 = 3

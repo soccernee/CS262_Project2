@@ -1,18 +1,16 @@
 import asyncio
 import config
 import random
-import socket
 import time
-
-
 
 class Process:
 
-    def __init__(self, process_number):
+    def __init__(self):
         random.seed()
-        self.process_number = process_number
+
+        self.a_writer = None
+        self.b_writer = None
         self.queue = []
-        self.connections = []
 
         self.host = config.SERVER_HOST
 
@@ -20,45 +18,65 @@ class Process:
         self.instruction_time = random.randint(1, 10)
         print("instruction time = ", self.instruction_time)
 
-        # create socket to receive incoming messages
-        self.init_listen_socket()
-
-        # broadcast to others that the machine is online
-        self.send_initial_broadcast()
-
-        # main execution loop
         self.main()
 
-    def log(self, message):
-        global_time = time.time()
-        print("[%d]: %d", global_time, message)
+    async def send_message_to_a(self):
+        message = "Hello World From " + self.process_name
 
-    async def handle_client(self, reader, writer):
+        if self.a_writer == None:
+            _, self.a_writer = await asyncio.open_connection(
+            '127.0.0.1', self.port_a)
+
+        print(f'Send: {message!r}')
+        self.a_writer.write(message.encode())
+        await self.a_writer.drain()
+
+    async def send_message_to_b(self):
+        message = "Hello World From " + self.process_name
+
+        if self.b_writer == None:
+            _, self.b_writer = await asyncio.open_connection(
+            '127.0.0.1', self.port_b)
+
+        print(f'Send: {message!r}')
+        self.b_writer.write(message.encode())
+        await self.b_writer.drain()
+
+    async def listen(self, reader, writer):
+        print("listen")
         request = None
         while request != 'quit':
             request = (await reader.read(255)).decode('utf8')
             print("request! = ", request)
             self.queue.append(request)
-            response = str(eval(request)) + '\n'
-            writer.write(response.encode('utf8'))
-            await writer.drain()
-        writer.close()
 
     async def run_server(self):
-        server = await asyncio.start_server(self.handle_client, 'localhost', self.my_port)
+        print("run_server on port: ", self.my_port)
+        server = await asyncio.start_server(self.listen, 'localhost', self.my_port)
         async with server:
             await server.serve_forever()
 
-    def init_listen_socket(self):
-        asyncio.run(self.run_server())
+    async def start_threads(self):
+        print("start threads!")
 
-    def main(self):
-        print("main loop")
+        # run the background task
+        _= asyncio.create_task(self.run_server())
 
+        # create a coroutine for the main execution loop
+        main_loop = asyncio.to_thread(self.main_loop)
+
+        # execute the loop in a new thread and await the result
+        await main_loop
+
+    def main_loop(self):
+        print("main_loop!")
         while True:
-            print("this is the main loop")
+            print("this is the main loop where queue = ", self.queue)
             time.sleep(self.instruction_time)
 
         # TODO: read 1 message
-        
         # TODO: roll dice to maybe send a message
+
+    def main(self):
+        print("main function")
+        asyncio.run(self.start_threads())

@@ -4,13 +4,13 @@ import config
 import time
 from process import Process
 
-class Machine_2(Process):
+class Machine_3(Process):
     def __init__(self):
-        self.my_port = config.PROCESS_2_PORT
+        self.my_port = config.PROCESS_3_PORT
         self.port_a = config.PROCESS_1_PORT
-        self.port_b = config.PROCESS_3_PORT
+        self.port_b = config.PROCESS_2_PORT
 
-        self.process_name = "Machine 2"
+        self.process_name = "Machine 3"
 
         super().__init__()
 
@@ -22,5 +22,8 @@ class Machine_2(Process):
             print("sending message to machine_1")
             asyncio.run(self.send_message_to_a())
 
+            print("sending message to machine_2")
+            asyncio.run(self.send_message_to_b())
 
-machine_2 = Machine_2()
+
+machine_3 = Machine_3()
