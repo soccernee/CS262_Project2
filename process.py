@@ -19,9 +19,8 @@ class Process:
 
         # determine instruction cycles per second
         self.instruction_time = round(1.0 / random.randint(1, 6), 2)
-
         #Create and configure logger
-        logging.basicConfig(filename="{}_log.log".format(self.process_name),
+        logging.basicConfig(filename="{}_log_1.log".format(self.process_name),
                             format='%(asctime)s %(message)s',
                             filemode='w')
         
@@ -46,9 +45,13 @@ class Process:
 
         print(f'Send: {message!r}')
         self.logger.info(':: Logical Clock = {} :: Send Message to {} -> {}'.format(str(self.local_clock), self.port_a, message.split(",")[0]))
-        self.a_writer.write(message.encode())
+        
+        try:
+            self.a_writer.write(message.encode())
+            await self.a_writer.drain()
+        except:
+            print("Could not send send message")
 
-        await self.a_writer.drain()
 
     async def send_message_to_b(self):
         message = "Hello World From " + self.process_name + "," + str(self.local_clock)
@@ -60,21 +63,29 @@ class Process:
         print(f'Send: {message!r}')
         self.logger.info(':: Logical Clock = {} :: Send Message to {} -> {}'.format(str(self.local_clock), self.port_b, message.split(",")[0]))
 
-        self.b_writer.write(message.encode())
-        await self.b_writer.drain()
+        try:
+            self.b_writer.write(message.encode())
+            await self.b_writer.drain()
+        except:
+            print("Could not send send message")
 
     async def listen(self, reader, writer):
         request = None
-        while request != 'quit' or request != '':
+        while request != '':
             request = (await reader.read(255)).decode('utf8')
             # add incoming message to our queue
+            if request == '':
+                break
+            print(f'Received: {request!r}')
+            self.logger.info(':: Logical Clock = {} :: Received Message -> {}'.format(str(self.local_clock), request.split(",")[0]))
             self.queue.append(request)
+
 
     async def run_server(self):
         print("server listening on port: ", self.my_port)
-        server = await asyncio.start_server(self.listen, 'localhost', self.my_port)
-        async with server:
-            await server.serve_forever()
+        self.server = await asyncio.start_server(self.listen, 'localhost', self.my_port)
+        async with self.server:
+            await self.server.serve_forever()
 
     async def start_threads(self):
         print("start threads!")
@@ -92,9 +103,19 @@ class Process:
         print("main_loop!")
         #To give us time to startup all the servers    
         time.sleep(2)
-        while True:
+        start_time = time.time()
+        queue_length = []
+        logical_clock_jump = []
+        while start_time + 60 > time.time():
+        #while True:
             time.sleep(self.instruction_time)
             print("This is the main loop where queue = ", self.queue)
+
+            #Metrics used for analysis
+            queue_length.append(len(self.queue))
+            old_clock = self.local_clock
+
+
             if (len(self.queue) > 0):
                 # read a message
                 msg = self.queue.pop()
@@ -121,6 +142,18 @@ class Process:
                 else:
                     self.logger.info(':: Logical Clock = {}'.format(str(self.local_clock)) + ' :: No Action to Take!')
                     print("no action to take!")
+
+            logical_clock_jump.append(self.local_clock - old_clock)
+        
+        #Print out the metrics
+        print("Queue Length: ", queue_length)
+        print("Logical Clock Jump: ", logical_clock_jump)
+
+        self.logger.info(':: Logical Clock = {} :: Instruction Time = {}'.format(str(self.local_clock), self.instruction_time) )
+        self.logger.info(':: Logical Clock = {} :: Average Queue Length = {}'.format(str(self.local_clock), str(sum(queue_length)/len(queue_length)) ) )
+        print("Average Queue Length: ", sum(queue_length)/len(queue_length))
+        self.logger.info(':: Logical Clock = {} :: Average Logical Clock Jump = {}'.format(str(self.local_clock), str(sum(logical_clock_jump)/len(logical_clock_jump)) ) )
+        print("Average Logical Clock Jump: ", sum(logical_clock_jump)/len(logical_clock_jump))
                         
             
                 
