@@ -14,7 +14,3 @@ This is all meant to be run on one physical machine. If you wanted to run this a
 2. In another terminal shell, run: `python machine_2.py`
 3. In another terminal shell, run: `python machine_3.py`
 4. Watch and observe.
-
-## Testing
-
-TODO

@@ -107,7 +107,6 @@ class Process:
         queue_length = []
         logical_clock_jump = []
         while start_time + 60 > time.time():
-        #while True:
             time.sleep(self.instruction_time)
             print("This is the main loop where queue = ", self.queue)
 
@@ -132,11 +131,11 @@ class Process:
                 #roll dice to maybe send a message
                 dice_roll = random.randint(1, 10)
 
-                if dice_roll <= 4:
+                if dice_roll <= 2:
                     asyncio.run(self.send_message_to_a())
-                elif dice_roll <= 8:
+                elif dice_roll <= 4:
                     asyncio.run(self.send_message_to_b())
-                elif dice_roll <= 10:
+                elif dice_roll <= 5:
                     asyncio.run(self.send_message_to_a())
                     asyncio.run(self.send_message_to_b())
                 else:
