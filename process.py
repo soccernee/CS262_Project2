@@ -20,7 +20,7 @@ class Process:
         # determine instruction cycles per second
         self.instruction_time = round(1.0 / random.randint(1, 6), 2)
         #Create and configure logger
-        logging.basicConfig(filename="{}_log_1.log".format(self.process_name),
+        logging.basicConfig(filename="{}_log_4.log".format(self.process_name),
                             format='%(asctime)s %(message)s',
                             filemode='w')
         
@@ -132,11 +132,11 @@ class Process:
                 #roll dice to maybe send a message
                 dice_roll = random.randint(1, 10)
 
-                if dice_roll == 1:
+                if dice_roll <= 4:
                     asyncio.run(self.send_message_to_a())
-                elif dice_roll == 2:
+                elif dice_roll <= 8:
                     asyncio.run(self.send_message_to_b())
-                elif dice_roll == 3:
+                elif dice_roll <= 10:
                     asyncio.run(self.send_message_to_a())
                     asyncio.run(self.send_message_to_b())
                 else:

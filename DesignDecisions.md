@@ -14,7 +14,7 @@ Because we use sockets to connect each of the machines to each other we have to 
 
 1. Initially, our machine 1 was not recieving any messages even though it was being sent them. This was a little surprissing because all three machines run the same code. To solve this we changed the port of machine 1 from 6125 to 6126. It brings up the question of if 6125 is a special port? Based on this website it seems like port 6125 has some special applications https://www.speedguide.net/port.php?port=6125.
 
-### Observations on Initial Regulations (1-6 ticks per second, 70% of internal event if nothing in queue)
+### Observations
 
 Generally, it appears that the machine with the lowest internal process time dictates the Logical clocks for all other machines and rarely has to update its own clock more than 1 step.
 
@@ -26,7 +26,14 @@ Generally, it appears that the machine with the lowest internal process time dic
 
 4. It seems that if there is one machine with an instruction time of .5 and another with .17 than the .5 machine will have a clogged queue, but will be capable of de-clogging itself if it is lucky!
 
-Run 1:
+5. As the expirment progresses, machines that have a much slower instruciton time and thus have a clogged queue suffer from significant drift from when a message was sent from one machine to when it was logged in the slow machine. This is because it has to process all the messages it had before that one.
+
+Column Names:
+
+- Instruction Time: How many operations per second
+- Average Logical Clock Jump: Average logical clock adjustment at each tick
+- Average Queue Length: Average length of Queue at each tick
+  Run 1:
 
 | Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
 | --------- | ---------------- | -------------------------- | -------------------- |
@@ -65,3 +72,81 @@ Run 5:
 | Machine 1 | 3/s              | 1.88 s                     | 0.44                 |
 | Machine 2 | 6/s              | 1.003 s                    | 0.08                 |
 | Machine 3 | 2/s              | 2.875 s                    | 1.525                |
+
+### We now look at results limiting machines to between 1 and 3 operations per second
+
+Run 1:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 1/s              | 3.08 s                     | 1.23                 |
+| Machine 2 | 3/s              | 1.02 s                     | 0.11                 |
+| Machine 3 | 2/s              | 1.51 s                     | 0.29                 |
+
+Run 2:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 3/s              | 1.0 s                      | 0.08                 |
+| Machine 2 | 2/s              | 1.53 s                     | 0.34                 |
+| Machine 3 | 1/s              | 3.07 s                     | 1.65                 |
+
+Run 3:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 1/s              | 3.13 s                     | 1.83                 |
+| Machine 2 | 3/s              | 1.08 s                     | 0.17                 |
+| Machine 3 | 3/s              | 1.12 s                     | 0.21                 |
+
+### We now look at results with the propability of an internal event at 50% rather than 70%
+
+Run 1:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 4/s              | 1.32 s                     | 0.38                 |
+| Machine 2 | 2/s              | 2.65 s                     | 12.78                |
+| Machine 3 | 5/s              | 1.09 s                     | 0.29                 |
+
+Run 2:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 2/s              | 2.02 s                     | 7.3                  |
+| Machine 2 | 4/s              | 2.65 s                     | 0.15                 |
+| Machine 3 | 3/s              | 1.39 s                     | 0.56                 |
+
+Run 3:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 3/s              | 1.7 s                      | 1.49                 |
+| Machine 2 | 5/s              | 1.06 s                     | 0.23                 |
+| Machine 3 | 4/s              | 1.35 s                     | 0.49                 |
+
+### We now look at results with the propability of an internal event at 0%
+
+Run 1:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 6/s              | 1.10 s                     | 0.36                 |
+| Machine 2 | 3/s              | 2.14 s                     | 44.69                |
+| Machine 3 | 6/s              | 1.14 s                     | 0.88                 |
+
+Run 2:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 1/s              | 5.6 s                      | 63.85                |
+| Machine 2 | 3/s              | 1.9 s                      | 21.51                |
+| Machine 3 | 6/s              | 1.01 s                     | 0.03                 |
+
+Run 3:
+
+| Machine   | Instruction Time | Average Logical Clock Jump | Average Queue Length |
+| --------- | ---------------- | -------------------------- | -------------------- |
+| Machine 1 | 3/s              | 1.09 s                     | 0.36                 |
+| Machine 2 | 1/s              | 3.3 s                      | 39.32                |
+| Machine 3 | 3/s              | 1.12 s                     | 0.53                 |
