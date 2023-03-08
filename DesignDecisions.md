@@ -28,6 +28,8 @@ Generally, it appears that the machine with the lowest internal process time dic
 
 5. As the expirment progresses, machines that have a much slower instruciton time and thus have a clogged queue suffer from significant drift from when a message was sent from one machine to when it was logged in the slow machine. This is because it has to process all the messages it had before that one.
 
+6. It is noted that as the frequency of internal event decreases the average length of the queue on slow machines becomes exponentially larger. This is due to the fact that the faster machines are sending messages to slow machines more frequenlty, while the slower machines are still processing a new message at the same rate as always.
+
 Column Names:
 
 - Instruction Time: How many operations per second
